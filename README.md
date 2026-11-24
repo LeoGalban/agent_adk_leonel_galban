@@ -61,7 +61,7 @@ Las instrucciones (en [`agent.py`](asistente_academico/agent.py)) están dividid
 
 ## Modelo
 
-Se usa **LiteLLM** para conectar ADK con modelos de **Ollama**, como se trabajó en clase. Por defecto usa `ollama_chat/gemma4:31b-cloud`, y se puede cambiar desde el archivo `.env` (ver más abajo) sin tocar el código.
+Se usa **LiteLLM** para conectar ADK con modelos de **Ollama**, como se trabajó en clase. Por defecto usa `ollama_chat/qwen3:8b`, un modelo local, gratuito y con soporte de *tool calling*. Se puede cambiar desde el archivo `.env` (ver más abajo) sin tocar el código, por ejemplo para usar un modelo de la nube de Ollama.
 
 ---
 
@@ -92,7 +92,7 @@ agent_adk_leonel_galban/
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/<tu-usuario>/agent_adk_leonel_galban.git
+git clone https://github.com/LeoGalban/agent_adk_leonel_galban.git
 cd agent_adk_leonel_galban
 ```
 
@@ -118,14 +118,15 @@ copy asistente_academico\.env.example asistente_academico\.env
 cp asistente_academico/.env.example asistente_academico/.env
 ```
 
-Verificar que Ollama esté activo y que el modelo esté disponible:
+Descargar el modelo (unos 5 GB) y verificar que esté disponible:
 
 ```bash
+ollama pull qwen3:8b
 ollama ls
 ```
 
-- Para el modelo por defecto (`gemma4:31b-cloud`, que corre en la nube de Ollama) hace falta iniciar sesión con `ollama signin`.
-- Para usar un modelo local, se descarga (por ejemplo `ollama pull qwen3:8b`) y se cambia `MODELO_AGENTE` en el `.env`. Conviene un modelo que soporte *tool calling*.
+- Para usar otro modelo se cambia `MODELO_AGENTE` en el `.env`. Conviene uno que soporte *tool calling*.
+- Los modelos de la nube de Ollama (por ejemplo `gemma4:31b-cloud`) requieren iniciar sesión con `ollama signin` y pueden requerir créditos en la cuenta.
 
 ### 4. Ejecutar la interfaz web de ADK
 
@@ -162,13 +163,3 @@ Estos mensajes muestran cómo el agente elige distintas herramientas según el p
 | "Marcá como entregada la 99" | `marcar_entregada` devuelve error: no existe |
 | "¿Qué tengo de Física?" (sin entregas cargadas) | `listar_entregas` devuelve resultado vacío y el agente lo informa |
 | "Me saqué 2 y 3, ¿llego al 6 con un examen más?" | `calcular_nota_necesaria` devuelve que no es posible aprobar |
-
----
-
-## Capturas
-
-<!-- Reemplazar por capturas propias de la interfaz web de ADK -->
-
-| Selección de herramientas | Manejo de errores |
-|---|---|
-| ![Uso de herramientas](docs/uso_herramientas.png) | ![Validación](docs/validacion.png) |

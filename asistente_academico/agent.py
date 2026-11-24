@@ -16,7 +16,7 @@ from .tools import (
 )
 
 # El modelo se puede cambiar desde el archivo .env sin tocar el código
-MODELO = os.getenv("MODELO_AGENTE", "ollama_chat/gemma4:31b-cloud")
+MODELO = os.getenv("MODELO_AGENTE", "ollama_chat/qwen3:8b")
 
 INSTRUCCIONES = """
 # ROL
