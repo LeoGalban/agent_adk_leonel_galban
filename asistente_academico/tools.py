@@ -35,15 +35,33 @@ def _error(mensaje: str) -> dict:
     return {"status": "error", "mensaje": mensaje}
 
 
+CAMPOS_ENTREGA = ("id", "materia", "titulo", "fecha_entrega", "estado")
+
+
+def _entrega_valida(e) -> bool:
+    """Descarta registros incompletos o con datos inválidos (por ejemplo, editados a mano)."""
+    return (
+        isinstance(e, dict)
+        and all(c in e for c in CAMPOS_ENTREGA)
+        and isinstance(e["id"], int) and not isinstance(e["id"], bool)
+        and isinstance(e["materia"], str) and isinstance(e["titulo"], str)
+        and _parsear_fecha(e["fecha_entrega"]) is not None
+        and e["estado"] in ("pendiente", "entregada")
+    )
+
+
 def _cargar_entregas() -> list[dict]:
-    """Lee el archivo JSON. Si no existe o está dañado, devuelve una lista vacía."""
+    """Lee el archivo JSON. Si no existe o está dañado, devuelve una lista vacía.
+    Los registros inválidos se ignoran para que ninguna herramienta falle."""
     if not DATA_FILE.exists():
         return []
     try:
         datos = json.loads(DATA_FILE.read_text(encoding="utf-8"))
-        return datos if isinstance(datos, list) else []
-    except (json.JSONDecodeError, OSError):
+    except (json.JSONDecodeError, OSError, UnicodeDecodeError):
         return []
+    if not isinstance(datos, list):
+        return []
+    return [e for e in datos if _entrega_valida(e)]
 
 
 def _guardar_entregas(entregas: list[dict]) -> None:
@@ -214,9 +232,13 @@ def marcar_entregada(id_entrega: int) -> dict:
     Returns:
         dict con la entrega actualizada o un mensaje de error.
     """
+    # bool es subclase de int en Python: True no debe tomarse como id 1.
+    # Se aceptan 3, "3" y 3.0 (los modelos a veces mandan el número como float).
     try:
-        id_entrega = int(id_entrega)
-    except (TypeError, ValueError):
+        if isinstance(id_entrega, bool) or float(id_entrega) != int(float(id_entrega)):
+            raise ValueError
+        id_entrega = int(float(id_entrega))
+    except (TypeError, ValueError, OverflowError):
         return _error(f"El id '{id_entrega}' no es un número válido.")
 
     entregas = _cargar_entregas()
