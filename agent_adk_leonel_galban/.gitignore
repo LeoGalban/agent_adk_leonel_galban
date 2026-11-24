@@ -1,0 +1,17 @@
+# Entorno virtual
+env/
+.venv/
+venv/
+
+# Variables de entorno
+.env
+
+# Datos generados por el agente
+asistente_academico/data/
+
+# Python
+__pycache__/
+*.pyc
+
+# ADK
+.adk/
